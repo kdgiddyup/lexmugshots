@@ -1,0 +1,29 @@
+* Hostname jail.lexingtonsheriff.net was found in DNS cache
+*   Trying 167.7.14.165...
+* TCP_NODELAY set
+* Connected to jail.lexingtonsheriff.net (167.7.14.165) port 80 (#0)
+> POST /Mug.aspx HTTP/1.1
+Host: jail.lexingtonsheriff.net
+Accept: */*
+Referer: http://jail.lexingtonsheriff.net/jailinmates.aspx
+Cookie: ASP.NET_SessionId=5w022a2wpm35gblxxs1lynwx
+Content-Length: 2406
+Content-Type: application/x-www-form-urlencoded
+
+* upload completely sent off: 2406 out of 2406 bytes
+* HTTP 1.0, assume close after body
+< HTTP/1.0 200 OK
+< Cache-Control: private
+< Content-Type: img/jpeg
+< Server: Microsoft-IIS/8.5
+< X-AspNet-Version: 4.0.30319
+< Content-Disposition: attachment;filename=1973
+< X-Powered-By: ASP.NET
+< Date: Mon, 07 May 2018 21:16:50 GMT
+< X-Cache: MISS from advsqd05.ad.lexocsc.gov
+< X-Cache-Lookup: MISS from advsqd05.ad.lexocsc.gov:80
+< Via: 1.1 advsqd05.ad.lexocsc.gov:80 (squid/2.7.STABLE9)
+< Connection: close
+< 
+* Curl_http_done: called premature == 0
+* Closing connection 0
