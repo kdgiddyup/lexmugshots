@@ -40,8 +40,7 @@
 
 
     <script>
-        var api = "http://com.lexmugs.local:8888";
-        $.get(api + "?start=0&end=0", function (response) {
+        $.get("/?start=1&end=0", function (response) {
             console.log(response);
             $(response.data).each(function (index, element) {
 

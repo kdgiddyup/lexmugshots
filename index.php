@@ -1,5 +1,5 @@
 <?php
-
+require_once("simple_html_dom.php");
 /**
  * Search and display recent confinement data
  * for Lexington County Detention Center
@@ -183,9 +183,33 @@ foreach ( $sources as $source )
             curl_close($chdet);
 
             // let's take a look at the returned HTML
-            // store detail event state, validation and generator strings from this document
+           
             $detailDom = new DOMDocument();
             $detailDom->loadHTML($detail);
+           
+            // scrape some arrest details not available in the main list
+            $detailDom2 = new simple_html_dom();
+            $detailDom2->load($detail);
+            $inmate->relDate = trim($detailDom2->find("#mainContent_CenterColumnContent_lblReleaseDate",0)->plaintext);
+            $inmate->courtNext = trim($detailDom2->find("#mainContent_CenterColumnContent_lblNextCourtDate",0)->plaintext);
+            $inmate->totalBond = trim($detailDom2->find("#mainContent_CenterColumnContent_lblTotalBoundAmount",0)->plaintext);
+            
+            $item = new stdClass();
+            // traverse rows
+            foreach ($detailDom2->find("#mainContent_CenterColumnContent_dgMainResults tr") as $detailRow){
+                $item->charge = trim($detailRow->find('td',0)->plaintext);
+                $item->status = trim($detailRow->find('td',1)->plaintext);
+                $item->docket = trim($detailRow->find('td',2)->plaintext);
+                $item->bond = trim($detailRow->find('td',3)->plaintext);
+                $inmate->charges[] = $item;
+            }
+            
+
+            // clean up memory
+            $detailDom2->clear();
+            unset($detailDom2);
+                
+             // store detail event state, validation and generator strings from this document
             $postDetail = array();
 
             $inputs = $detailDom->getElementsByTagName('input');
