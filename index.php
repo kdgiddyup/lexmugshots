@@ -88,8 +88,8 @@ foreach ( $sources as $source )
         CURLOPT_POSTFIELDS => 't=ii&_search=false&page=1&rows=10000&sidx=date_arr&sord=desc&nd=1525363643699',
 
         /* debug options  */
-        CURLOPT_VERBOSE => true,
-        CURLOPT_STDERR => $curlLog, 
+        // CURLOPT_VERBOSE => true,
+        // CURLOPT_STDERR => $curlLog, 
         //CURLOPT_ENCODING => "",
         )
         );
@@ -138,8 +138,8 @@ foreach ( $sources as $source )
             // attempt to get mug
 
             /* for debug - write headers for mug request */
-            $mugLog = fopen('./logs/mugLog.txt','w');
-            $detailLog = fopen('./logs/detailLog.txt','w');
+            // $mugLog = fopen('./logs/mugLog.txt','w');
+            // $detailLog = fopen('./logs/detailLog.txt','w');
             
             // update inmate number in hidden form element and process $post array to string
             $postHome['ctl00$MasterPage$mainContent$CenterColumnContent$hfRecordIndex'] = $inmate->my_num;
@@ -156,8 +156,6 @@ foreach ( $sources as $source )
             $chdet = curl_init($source['main']);
                 curl_setopt_array( $chdet, array(
                     CURLOPT_REFERER => $source['main'],
-                    //CURLOPT_POST => true,
-                    //CURLOPT_USERAGENT => $_SERVER['HTTP_USER_AGENT'],
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_HTTPGET => true,
                     CURLOPT_COOKIEJAR => $source['cookie'],
@@ -170,8 +168,8 @@ foreach ( $sources as $source )
                     //CURLOPT_HEADER => true,
                     /* for debug - more info */
                     //CURLINFO_HEADER_OUT => true,
-                    CURLOPT_VERBOSE => true,
-                    CURLOPT_STDERR => $detailLog
+                    // CURLOPT_VERBOSE => true,
+                    // CURLOPT_STDERR => $detailLog
                 ));
                 
                 
@@ -194,17 +192,24 @@ foreach ( $sources as $source )
             $inmate->courtNext = trim($detailDom2->find("#mainContent_CenterColumnContent_lblNextCourtDate",0)->plaintext);
             $inmate->totalBond = trim($detailDom2->find("#mainContent_CenterColumnContent_lblTotalBoundAmount",0)->plaintext);
             
-            $item = new stdClass();
-            // traverse rows
-            foreach ($detailDom2->find("#mainContent_CenterColumnContent_dgMainResults tr") as $detailRow){
-                $item->charge = trim($detailRow->find('td',0)->plaintext);
-                $item->status = trim($detailRow->find('td',1)->plaintext);
-                $item->docket = trim($detailRow->find('td',2)->plaintext);
-                $item->bond = trim($detailRow->find('td',3)->plaintext);
-                $inmate->charges[] = $item;
-            }
-            
-
+            $r=0; // row index
+            foreach ($detailDom2->find("#mainContent_CenterColumnContent_dgMainResults tr") as $rows){
+                if ($r === 0) { // header row
+                    $headers = $rows->find("td");
+                }
+                else {  // data rows
+                    $item = new stdClass();           
+                    $c=0; // column index to match headers
+                    foreach ($rows->find("td") as $datum){    
+                        $label = trim($headers[$c]->plaintext); 
+                        $item->$label = trim($datum->plaintext); 
+                        $c++; // increment column
+                        }
+                    $inmate->charges[] = $item;
+                }
+                $r++; // increment row index
+            };
+                        
             // clean up memory
             $detailDom2->clear();
             unset($detailDom2);
@@ -225,16 +230,15 @@ foreach ( $sources as $source )
             $postDetailString = implode('&', $temp_string);
             
             /* debug: output some curl strings for this inmate */
-            $inmate->mugQuery = $postDetail;
-            $inmate->detailDom = $detail;
-            $inmate->redirect = $redirectUrl;
+            // $inmate->mugQuery = $postDetail;
+            // $inmate->detailDom = $detail;
+            // $inmate->redirect = $redirectUrl;
             
             // make call to mug endpoint with new redirect URL set as referer
             $chmug = curl_init( $source['mug']);
             curl_setopt_array( $chmug, array(
                 CURLOPT_REFERER => $source['main'],
                 CURLOPT_RETURNTRANSFER => true,
-                //CURLOPT_POST => true,
                 CURLOPT_HTTPGET => true,
                 CURLOPT_COOKIEJAR => $source['cookie'],
                 CURLOPT_COOKIEFILE => $source['cookie'],
@@ -245,16 +249,13 @@ foreach ( $sources as $source )
                 
                 /* for debug - more info */
                 //CURLINFO_HEADER_OUT => true,
-                CURLOPT_HEADER => false,
-                CURLOPT_VERBOSE => true,
-                CURLOPT_STDERR => $mugLog
+                // CURLOPT_HEADER => false,
+                // CURLOPT_VERBOSE => true,
+                // CURLOPT_STDERR => $mugLog
             ));
 
             $raw_mug = curl_exec($chmug);
-            // $inmate->mugInfo = curl_getinfo($chmug);
             curl_close($chmug);
-
-            
 
             if (!$raw_mug) {
                 $inmate->image = "http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg";
@@ -284,8 +285,9 @@ foreach ( $sources as $source )
             
                 
          
-    //         /* debug */
+             /* debug */
              //$test[] = $inmate;
+             
              $data[$i]['data'][] = $inmate;
 
 	// 		$name_last = (string) $inmate->nl;

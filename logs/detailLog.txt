@@ -5,21 +5,21 @@
 Host: jail.lexingtonsheriff.net
 Accept: */*
 Referer: http://jail.lexingtonsheriff.net/jailinmates.aspx
-Content-Length: 4613
+Content-Length: 4659
 Content-Type: application/x-www-form-urlencoded
 
-* upload completely sent off: 4613 out of 4613 bytes
+* upload completely sent off: 4659 out of 4659 bytes
 * HTTP 1.0, assume close after body
 < HTTP/1.0 302 Moved Temporarily
 < Cache-Control: private
 < Content-Type: text/html; charset=utf-8
-< Location: /InmateDetail.aspx?navid=636614217032664046
+< Location: /InmateDetail.aspx?navid=636615008505568829
 < Server: Microsoft-IIS/8.5
 < X-AspNet-Version: 4.0.30319
-* Added cookie ASP.NET_SessionId="5hqksj5frwjd01l4srvmeevu" for domain jail.lexingtonsheriff.net, path /, expire 0
-< Set-Cookie: ASP.NET_SessionId=5hqksj5frwjd01l4srvmeevu; path=/; HttpOnly
+* Added cookie ASP.NET_SessionId="ybhp33h01lpme5qje4vm4xmv" for domain jail.lexingtonsheriff.net, path /, expire 0
+< Set-Cookie: ASP.NET_SessionId=ybhp33h01lpme5qje4vm4xmv; path=/; HttpOnly
 < X-Powered-By: ASP.NET
-< Date: Wed, 09 May 2018 04:15:02 GMT
+< Date: Thu, 10 May 2018 02:14:10 GMT
 < Content-Length: 160
 < X-Cache: MISS from advsqd05.ad.lexocsc.gov
 < X-Cache-Lookup: MISS from advsqd05.ad.lexocsc.gov:80
@@ -28,17 +28,17 @@ Content-Type: application/x-www-form-urlencoded
 < 
 * Curl_http_done: called premature == 0
 * Closing connection 0
-* Issue another request to this URL: 'http://jail.lexingtonsheriff.net/InmateDetail.aspx?navid=636614217032664046'
+* Issue another request to this URL: 'http://jail.lexingtonsheriff.net/InmateDetail.aspx?navid=636615008505568829'
 * Switch from POST to GET
 * Hostname jail.lexingtonsheriff.net was found in DNS cache
 *   Trying 167.7.14.165...
 * TCP_NODELAY set
 * Connected to jail.lexingtonsheriff.net (167.7.14.165) port 80 (#1)
-> GET /InmateDetail.aspx?navid=636614217032664046 HTTP/1.0
+> GET /InmateDetail.aspx?navid=636615008505568829 HTTP/1.0
 Host: jail.lexingtonsheriff.net
 Accept: */*
 Referer: http://jail.lexingtonsheriff.net/jailinmates.aspx
-Cookie: ASP.NET_SessionId=5hqksj5frwjd01l4srvmeevu
+Cookie: ASP.NET_SessionId=ybhp33h01lpme5qje4vm4xmv
 
 * HTTP 1.0, assume close after body
 < HTTP/1.0 200 OK
@@ -47,8 +47,8 @@ Cookie: ASP.NET_SessionId=5hqksj5frwjd01l4srvmeevu
 < Server: Microsoft-IIS/8.5
 < X-AspNet-Version: 4.0.30319
 < X-Powered-By: ASP.NET
-< Date: Wed, 09 May 2018 04:15:02 GMT
-< Content-Length: 19284
+< Date: Thu, 10 May 2018 02:14:10 GMT
+< Content-Length: 18929
 < X-Cache: MISS from advsqd05.ad.lexocsc.gov
 < X-Cache-Lookup: MISS from advsqd05.ad.lexocsc.gov:80
 < Via: 1.1 advsqd05.ad.lexocsc.gov:80 (squid/2.7.STABLE9)
