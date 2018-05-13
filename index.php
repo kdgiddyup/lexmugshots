@@ -29,42 +29,24 @@ $startTarget = strtotime("$start days 0:0:0", strtotime('now'));
 $endTarget = strtotime("$end days 0:0:0", strtotime('now'));
 
 /* debug */
-$test = array();
+//$test = array();
 
 /*  App  */
-
-function rrmdir($src) {
-    $dir = opendir($src);
-    while(false !== ( $file = readdir($dir)) ) {
-        if (( $file != '.' ) && ( $file != '..' )) {
-            $full = $src . '/' . $file;
-            if ( is_dir($full) ) {
-                rrmdir($full);
-            }
-            else {
-                unlink($full);
-            }
-        }
-    }
-    closedir($dir);
-    rmdir($src);
-}
 $i = 0;
 foreach ( $sources as $source )
 {
     /* curl init */
     /* debug */
     // logging headers
-    $curlLog = fopen('./logs/curlLog.txt','w');
-
+    //$curlLog = fopen('./logs/curlLog.txt','w');
     
-    /* remove any existing cookie */
+    /* remove any existing cookie */  
     {
         if ( file_exists($source['cookie']) ) {
             unlink($source['cookie']);
         }
             
-    }    
+    } 
 
     /* GET homepage to retrieve session and form state values */
     $ch = curl_init($source['main']);
@@ -74,8 +56,12 @@ foreach ( $sources as $source )
         CURLOPT_COOKIEJAR => $source['cookie'],
         CURLOPT_COOKIEFILE => $source['cookie'],
     ));
+    
     $home = curl_exec($ch);
     curl_close($ch);
+
+    if (!$home)
+        $data[$i]['scrapeError'] = curl_error($ch);
 
     // POST to data handler to retrieve initial list of detainees
     $chList = curl_init($source['list']);
@@ -90,17 +76,17 @@ foreach ( $sources as $source )
         /* debug options  */
         // CURLOPT_VERBOSE => true,
         // CURLOPT_STDERR => $curlLog, 
-        //CURLOPT_ENCODING => "",
+        // CURLOPT_ENCODING => "",
         )
         );
     $list = curl_exec($chList);
-    
+    if (!$list) 
+        $data[$i]['listError'] = curl_error($chList);
+    curl_close($chList); 
+    $list = json_decode($list);
+
     /* for debug */
     //$headerSent = curl_getinfo($ch, CURLINFO_HEADER_OUT);
-    
-    curl_close($chList);
-
-
 
     // suppress error output for html loading
     libxml_use_internal_errors(true);
@@ -112,18 +98,14 @@ foreach ( $sources as $source )
     $dom->loadHTML($home);
     $inputs = $dom->getElementsByTagName('input');
     foreach ( $inputs as $input ) 
-        $postHome[$input->getAttribute('name')] = $input->getAttribute('value');
-       
-    if (!$list) {
-        $list = curl_error($ch);
-    }
-    else {
-        $list = json_decode($list);
-    }
+        $postHome[$input->getAttribute('name')] = $input->getAttribute('value');   
     
     $data[$i]['agency'] = $source['agency'];
     $data[$i]['url'] = $source['main'];
     $data[$i]['success'] = true;
+    
+    /* debug */
+    // $data[$i]['cookie'] = $source['cookie'];
     
 	$data[$i]['data'] = array();
 	$j = 0;
@@ -153,8 +135,8 @@ foreach ( $sources as $source )
 
             // POST to get inmate detail; 
             // event validator, event state and event generator are passed in the $post_string
-            $chdet = curl_init($source['main']);
-                curl_setopt_array( $chdet, array(
+            $chDet = curl_init($source['main']);
+                curl_setopt_array( $chDet, array(
                     CURLOPT_REFERER => $source['main'],
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_HTTPGET => true,
@@ -173,13 +155,16 @@ foreach ( $sources as $source )
                 ));
                 
                 
-            $detail = curl_exec($chdet);
-            $redirectUrl = curl_getinfo($chdet)['url'];
+            $detail = curl_exec($chDet);
+            if (!$detail)
+                $inmate['detailError'] = curl_error($chDet);
+
+            $redirectUrl = curl_getinfo($chDet)['url'];
             
             // debug - export headers to inmate object for examination in console
             // $inmate->curlInfo = curl_getInfo($chdet);
-            curl_close($chdet);
-
+            curl_close($chDet);
+            
             // let's take a look at the returned HTML
            
             $detailDom = new DOMDocument();
@@ -235,8 +220,8 @@ foreach ( $sources as $source )
             // $inmate->redirect = $redirectUrl;
             
             // make call to mug endpoint with new redirect URL set as referer
-            $chmug = curl_init( $source['mug']);
-            curl_setopt_array( $chmug, array(
+            $chMug = curl_init( $source['mug']);
+            curl_setopt_array( $chMug, array(
                 CURLOPT_REFERER => $source['main'],
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_HTTPGET => true,
@@ -254,8 +239,10 @@ foreach ( $sources as $source )
                 // CURLOPT_STDERR => $mugLog
             ));
 
-            $raw_mug = curl_exec($chmug);
-            curl_close($chmug);
+            $raw_mug = curl_exec($chMug);
+            if (!$raw_mug)
+                $inmate['mugError'] = curl_error($chMug);
+            curl_close($chMug);
 
             if (!$raw_mug) {
                 $inmate->image = "http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg";
@@ -281,78 +268,12 @@ foreach ( $sources as $source )
                     $img_data = "http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg";
                     } 
                 $inmate->image = $img_data;
-                }
-            
-                
-         
+                }         
+
              /* debug */
              //$test[] = $inmate;
              
              $data[$i]['data'][] = $inmate;
-
-	// 		$name_last = (string) $inmate->nl;
-	// 		$name_first = (string) $inmate->nf;
-	// 		$name_middle = (string) $inmate->nm;
-
-    //         $data[$i]['data'][$j]['last'] = $name_last;
-    //         $data[$i]['data'][$j]['first'] = $name_first;
-    //         $data[$i]['data'][$j]['middle'] = $name_middle;
-
-
-	// 		// Address.
-	// 		$data[$i]['data'][$j]['city'] = (string) $inmate->csz;
-
-	// 		// Race
-	// 		$data[$i]['data'][$j]['race'] = (string) explode(" / ",$inmate->racegen)[0];
-            
-    //         // Gender
-	// 		$data[$i]['data'][$j]['sex'] = (string) explode(" / ",$inmate->racegen)[1];
-
-    //         // Date of birth. Needs a little wrangling because of two-digit pre-epoch years;
-    //         // strtotime() is not reliable since it maps values between 0-69 to 2000-2069 
-    //         // and values between 70-100 to 1970-2000.
-    //         // Helped here by fact that we also get their age so we can just subtract 
-    //         // age from current year to yield birth year
-    //         $dob = explode("/", $inmate->dob);
-    //         $inmate->dob = $dob[0]."/".$dob[1]."/".(date("Y") - $inmate->age);
-    //         $data[$i]['data'][$j]['dob'] = (string) date("M j, Y", strtotime($inmate->dob));
-            
-    //         // Age.
-    //         $data[$i]['data'][$j]['age'] = (string) $inmate->age;
-
-	// 		// Height.
-	// 		$data[$i]['data'][$j]['height'] = (string) $inmate->ht;
-
-	// 		// Weight.
-	// 		$data[$i]['data'][$j]['weight'] = (string) $inmate->wt;
-
-	// 		// Mugshot: make sure it's an actual image file.
-	// 		$url_mug = (string) $inmate->image1['src'];
-	// 		if ( preg_match('/\.(jpeg|jpg|png|gif)$/i', $url_mug) )
-	// 		{
-	// 			$data[$i]['data'][$j]['photo'] = $url_mug;
-	// 		}
-
-    //         // arrest info
-    //         // is there any?
-    //         if ( array_key_exists("ar", $inmate)) {
-    //             $data[$i]['data'][$j]['arrestinfo'][]['present'] = (boolean) true;
-    //             $data[$i]['data'][$j]['arrestinfo'][] = $inmate->ar;
-            
-    //         }
-	// 		// Booking number.
-	// 		$data[$i]['data'][$j]['booknum'] = (string) $inmate->bn;
-            
-    //         // Booking date and time.
-	// 		$data[$i]['data'][$j]['booktime'] = (string) date("g:i a, M j, Y",strtotime($inmate->bd));
-
-    //         // Release date
-	// 		$data[$i]['data'][$j]['reldate'] = ($inmate->dtout == "Confined") ? (string) "Confined" : (string) date("g:i a",strtotime($inmate->tmout)).", ".date("M j, Y",strtotime($inmate->dtout));
-            
-    //         // Inmate number.
-	// 		$data[$i]['data'][$j]['inmatenum'] = (string) $inmate->nn;
-
-        //     $j++;
 		}
 	}
 	$i++;
