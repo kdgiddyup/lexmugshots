@@ -466,6 +466,8 @@ function displayInmate(inmate) {
     inmate.race +
     ", " +
     inmate.sex +
+    "</td></tr><tr><th>Total bond</th><td>" +
+    inmate.totalBond +
     "</td></tr></table>";
 
   // add div at end to hook in details
