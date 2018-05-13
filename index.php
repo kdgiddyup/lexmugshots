@@ -23,7 +23,7 @@ $sources = array(
         'list'		=> 'http://jail.lexingtonsheriff.net/jqHandler.ashx?op=s',
         'detail'    => 'http://jail.lexingtonsheriff.net/InmateDetail.aspx',
         'mug'       => 'http://jail.lexingtonsheriff.net/Mug.aspx',
-        'cookie'    => './tmp/lexmugs.txt'
+        'cookie'    => dirname(__FILE__).'./tmp/lexmugs.txt'
 	)
 );
 $startTarget = strtotime("$start days 0:0:0", strtotime('now'));
@@ -42,8 +42,8 @@ foreach ( $sources as $source )
     
     /* remove any existing cookie */  
     {
-        if ( file_exists(dirname(__FILE__) . $source['cookie']) ) {
-            unlink(dirname(__FILE__) . $source['cookie']);
+        if ( file_exists($source['cookie']) ) {
+            unlink($source['cookie']);
         }
             
     } 
@@ -53,8 +53,8 @@ foreach ( $sources as $source )
     curl_setopt_array($ch, array(
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_REFERER => $source['main'],
-        CURLOPT_COOKIEJAR => dirname(__FILE__) . $source['cookie'],
-        CURLOPT_COOKIEFILE => dirname(__FILE__) . $source['cookie'],
+        CURLOPT_COOKIEJAR => $source['cookie'],
+        CURLOPT_COOKIEFILE => $source['cookie'],
     ));
 
     $home = curl_exec($ch);
@@ -69,8 +69,8 @@ foreach ( $sources as $source )
         CURLOPT_REFERER => $source['main'],
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
-        CURLOPT_COOKIEJAR => dirname(__FILE__) . $source['cookie'],
-        CURLOPT_COOKIEFILE => dirname(__FILE__) . $source['cookie'],
+        CURLOPT_COOKIEJAR => $source['cookie'],
+        CURLOPT_COOKIEFILE => $source['cookie'],
         CURLOPT_POSTFIELDS => 't=ii&_search=false&page=1&rows=10000&sidx=date_arr&sord=desc&nd=1525363643699',
 
         /* debug options  */
@@ -105,7 +105,7 @@ foreach ( $sources as $source )
     $data[$i]['success'] = true;
     
     /* debug */
-    // $data[$i]['cookie'] = dirname(__FILE__) . $source['cookie'];
+    // $data[$i]['cookie'] = $source['cookie'];
     
 	$data[$i]['data'] = array();
 	$j = 0;
@@ -140,8 +140,8 @@ foreach ( $sources as $source )
                     CURLOPT_REFERER => $source['main'],
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_HTTPGET => true,
-                    CURLOPT_COOKIEJAR => dirname(__FILE__) . $source['cookie'],
-                    CURLOPT_COOKIEFILE => dirname(__FILE__) . $source['cookie'],
+                    CURLOPT_COOKIEJAR => $source['cookie'],
+                    CURLOPT_COOKIEFILE => $source['cookie'],
                     CURLOPT_TIMEOUT => 30,
                     CURLOPT_FOLLOWLOCATION => true,     // Follow redirects
                     CURLOPT_MAXREDIRS => 4,  
@@ -225,8 +225,8 @@ foreach ( $sources as $source )
                 CURLOPT_REFERER => $source['main'],
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_HTTPGET => true,
-                CURLOPT_COOKIEJAR => dirname(__FILE__) . $source['cookie'],
-                CURLOPT_COOKIEFILE => dirname(__FILE__) . $source['cookie'],
+                CURLOPT_COOKIEJAR => $source['cookie'],
+                CURLOPT_COOKIEFILE => $source['cookie'],
                 CURLOPT_FOLLOWLOCATION => TRUE,     // Follow redirects
                 CURLOPT_MAXREDIRS => 4,
                 CURLOPT_POSTFIELDS => $postDetailString,
