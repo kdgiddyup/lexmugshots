@@ -1,5 +1,6 @@
 <?php
 require_once("simple_html_dom.php");
+header("Access-Control-Allow-Origin: *");
 /**
  * Search and display recent confinement data
  * for Lexington County Detention Center
@@ -270,6 +271,9 @@ foreach ( $sources as $source )
                 $inmate->image = $img_data;
                 }         
 
+                /* clean up to reduce processing
+                load on client side */
+                $inmate->dob = explode(" ", $inmate->dob)[0];
              /* debug */
              //$test[] = $inmate;
              
