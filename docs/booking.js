@@ -14,8 +14,8 @@ var end = bookingData.end || 0;
 var qTerms = bookingData.terms || "";
 
 // where is our API?
-var ajaxSrc = "./../index.php";
-// "https://lexmugs.herokuapp.com";
+var ajaxSrc = //"./../index.php";
+  "https://lexmugs.herokuapp.com";
 // "http://dev.nandointeractive.com/mugshots/";
 
 // for filtering purposes, create an array of stringified detainee data
@@ -28,9 +28,9 @@ $(document).ready(function() {
   // only need to see the filter spinner when filtering is happening ...
   $("#filterSpinner").hide();
 
-  // if this is a story page, we don't need a lot of data, just one day's worth, the detaineeDate
   if (type === "detail") {
-    if (inmate) {
+    // is the inmate object empty?
+    if (!jQuery.isEmptyObject(inmate)) {
       displayInmate(inmate);
     } else {
       $("#inmate").html(

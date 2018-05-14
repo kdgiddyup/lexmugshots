@@ -32,8 +32,8 @@
     <script type="text/javascript">var type = "landing";</script>
 
     <!-- deploy: change script src -->
-    <!-- script src="http://media.thestate.com/static/news/crime/mugshots/lexington/booking.js"></script -->
-    <script src="booking.js"></script>
+    <script src="http://media.thestate.com/static/news/crime/mugshots/lexington/booking.js"></script>
+    <!-- script src="booking.js"></script -->
 
     <!-- deploy: change stylesheet source -->
     <link rel="stylesheet" type="text/css" href="http://media.thestate.com/static/news/crime/mugshots/lexington/booking.css"
@@ -60,16 +60,23 @@
                     <div class="dateShortcut btn btn-warning" data-time-back="1">Today</div>
                     <div class="dateShortcut btn btn-warning" data-time-back="2">Last 2 days</div>
                     <div class="dateShortcut btn btn-warning" data-time-back="7">Last 7 days</div>
-                    <div class="dateShortcut btn btn-warning" data-time-back="14">Last 2 weeks</div>
-                    <div class="dateShortcut btn btn-warning" data-time-back="30">Last 30 days</div>
-                    <div class="dateShortcut btn btn-warning" data-time-back="90">Last 90 days</div>
+                    <div class="dateShortcut btn btn-warning" data-time-back="14">Last 2 weeks
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="dateShortcut btn btn-warning" data-time-back="30">Last 30 days
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="dateShortcut btn btn-warning" data-time-back="90">Last 90 days
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
 
                     <p>Start date:
                         <input id="startDate" type="date" name="start"> End date:
                         <input id="endDate" type="date" name="end">
                         <span id="dateSubmitBtn" class="btn btn-default submit">Submit dates</span>
                     </p>
-                    <p>Note: Requests for records over longer periods might take several minutes. Please be patient.</p>
+                    <p>
+                        <i class="fas fa-exclamation-triangle"></i> Requests for records over longer periods can take several minutes. Please be patient.</p>
                 </div>
 
                 <!-- filter  -->
