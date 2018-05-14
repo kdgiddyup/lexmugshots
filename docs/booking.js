@@ -9,13 +9,13 @@ minDate = new Date(minDate).toISOString().split("T")[0];
 // get info from localStorage, if any
 var bookingData = JSON.parse(localStorage.getItem("lexBookingData")) || {};
 var inmate = bookingData.inmate || {};
-var start = bookingData.start || 1;
+var start = bookingData.start || 0;
 var end = bookingData.end || 0;
 var qTerms = bookingData.terms || "";
 
 // where is our API?
-var ajaxSrc = //"./../index.php";
-  "https://lexmugs.herokuapp.com";
+var ajaxSrc = "./../index.php";
+//"https://lexmugs.herokuapp.com";
 // "http://dev.nandointeractive.com/mugshots/";
 
 // for filtering purposes, create an array of stringified detainee data
@@ -190,18 +190,21 @@ function getData(start, end, terms) {
     } else {
       console.log(response);
       $("#bookingPanel, #inmates").html(
-        "<h2>Error</h2><p>There was an error fetching data from the Lexington County Detention Center. Please try again later. There might be more information in the browser console.</p>"
+        "<h2>Error</h2><p>There was an error fetching data from the Lexington County Detention Center. Please try again.</p>"
       );
     }
   }).fail(function(err) {
     $("#bookingPanel, #inmates, #inmate").html(
-      "<h2>Error</h2><p>There was an error fetching inmate data. Either our server or the Lexington County Detention Center inmate inquiry system is down. There might be more information in the browser console.</p>"
+      "<h2>Error</h2><p>There was an error fetching inmate data. Either our server or the Lexington County Detention Center inmate inquiry system is down. You can try again if you wish.</p>"
     );
     console.log("Error retrieving data:", JSON.stringify(err));
   });
 }
 
 function displayInmates(data, start, end, terms) {
+  // reset filterSource
+  filterSource = [];
+
   // remove any existing html, including the loading spinner
   $("#inmates").html("");
 
@@ -209,8 +212,21 @@ function displayInmates(data, start, end, terms) {
   for (var i = 0; i < data.length; i++) {
     var detainee = data[i];
 
-    // add stringified version to filterSource
-    filterSource.push(JSON.stringify(detainee));
+    // clone this inmate's data to clean it up and stringify for filter source
+    var detaineeVals = $.extend({}, detainee);
+    delete detaineeVals.my_num;
+    delete detaineeVals.book_id;
+    delete detaineeVals.invid;
+    delete detaineeVals.name;
+    delete detaineeVals.date_arr;
+    delete detaineeVals.disp_charge;
+    delete detaineeVals.disp_name;
+    delete detaineeVals.chrgdesc;
+    delete detaineeVals.image;
+    delete detaineeVals.link_text;
+
+    // add detainee object value arrays to filterSource
+    filterSource.push(JSON.stringify(detaineeVals).toLowerCase());
 
     // build content block
     var inmateBlock =
@@ -545,36 +561,35 @@ function displayInmate(inmate) {
 /* loop through stringified data stored in filterSource array and look for matches to passed in string as "value"; if found, show that offender. if not, hide it. 
 // we target divs of class ".detaineeIndex" to show/hide by booking number attribute (data-booking-number)
 */
-function runFilter(value) {
+function runFilter(term) {
   // update local storage
   var bookingData = JSON.parse(localStorage.getItem("lexBookingData")) || {};
-
-  bookingData.terms = value;
+  bookingData.terms = term;
   localStorage.setItem("lexBookingData", JSON.stringify(bookingData));
 
   // entered just a space? show everyone and get out
-  if (!value || value === " ") {
+  if (!term || term === " ") {
     $(".detaineeIndex").show("fast");
     $("#filterSpinner").hide("fast");
     return;
   }
 
   // separate terms by spaces, after removing any double spaces
-  var values = value
+  var terms = term
     .replace(/\s{2,}/g, " ")
     .toLowerCase()
     .split(" ");
 
-  $(filterSource).each(function(index, element) {
-    // element represents the stringified version of each detainee object
-
+  // filterSource is an array of strings of values associated with each detainee
+  $(filterSource).each(function(index, detValues) {
+    // detValues represents the the value string for each detainee object
     // reset isMatched flag
     var isMatched = false;
 
-    // check this element string against each term
-    for (var v = 0; v < values.length; v++) {
-      // does the filter input value match any part of this detainee string?
-      if (element.toLowerCase().indexOf(values[v]) === -1) {
+    // check this detail string against each filter term
+    for (var t = 0; t < terms.length; t++) {
+      // does the filter input value match any of this detainee's values?
+      if (detValues.indexOf(terms[t].toLowerCase()) === -1) {
         // no? set isMatched to false, exit loop because there's no need to keep searching
         isMatched = false;
         break;
@@ -583,11 +598,15 @@ function runFilter(value) {
       // special case for 'male' since it is included in 'female'
       // if value being checked is male, but inmate record has "female", then this is not a match
       else if (
-        values[v] === "male" &&
-        JSON.parse(element).sex.toLowerCase() === "female"
+        terms[t] === "male" &&
+        JSON.parse(detValues).sex.toLowerCase() === "male"
       ) {
-        isMatched = false;
-        break;
+        isMatched = true;
+      } else if (
+        terms[t] === "female" &&
+        JSON.parse(detValues).sex.toLowerCase() === "female"
+      ) {
+        isMatched = true;
       }
       //set isMatched to true but keep checking other words in value array
       else {
@@ -602,9 +621,6 @@ function runFilter(value) {
     // otherwise, hide it
     else {
       $(".detaineeIndex[data-index='" + index + "']").hide("fast");
-    }
-
-    if (index + 1 === filterSource.length) {
     }
   });
   // when filtering loop completes, remove spinner from input

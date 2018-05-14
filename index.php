@@ -289,7 +289,7 @@ foreach ( $sources as $source )
                     load on client side */
                     $inmate->dob = explode(" ", $inmate->dob)[0];
                 /* debug */
-                $inmate->cookie = $source['cookie'];
+                // $inmate->cookie = $source['cookie'];
                 //$test[] = $inmate;
                 
                 $data[$i]['data'][] = $inmate;
