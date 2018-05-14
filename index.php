@@ -119,8 +119,7 @@ foreach ( $sources as $source )
 	 	//$timestamp = strtotime( $booked->setTime(0,0,0)->format('Y-m-d H:i:s') );
 
 		// Only process inmates for the date target window.
-		if ( $booked >= $startTarget && $booked <= $endTarget)
-		{
+        if ($booked >= $startTarget && $booked <= $endTarget) {
             // attempt to get mug
 
             /* for debug - write headers for mug request */
@@ -131,16 +130,17 @@ foreach ( $sources as $source )
             $postHome['ctl00$MasterPage$mainContent$CenterColumnContent$hfRecordIndex'] = $inmate->my_num;
             
             $temp_string = array();
-            foreach ( $postHome as $key => $value )
-                    $temp_string[] = $key . "=" . urlencode($value);
+            foreach ($postHome as $key => $value) {
+                $temp_string[] = $key . "=" . urlencode($value);
+            }
             // Bring in array elements into string
             $postHomeString = implode('&', $temp_string);
             
 
-            // POST to get inmate detail; 
+            // POST to get inmate detail;
             // event validator, event state and event generator are passed in the $post_string
             $chDet = curl_init($source['main']);
-                curl_setopt_array( $chDet, array(
+            curl_setopt_array($chDet, array(
                     CURLOPT_REFERER => $source['main'],
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_HTTPGET => true,
@@ -148,7 +148,7 @@ foreach ( $sources as $source )
                     CURLOPT_COOKIEFILE => $source['cookie'],
                     CURLOPT_TIMEOUT => 30,
                     CURLOPT_FOLLOWLOCATION => true,     // Follow redirects
-                    CURLOPT_MAXREDIRS => 4,  
+                    CURLOPT_MAXREDIRS => 4,
                     CURLOPT_POSTFIELDS => $postHomeString,
                     CURLOPT_HTTPHEADER => array('Expect:  '),
                     //CURLOPT_HEADER => true,
@@ -160,8 +160,9 @@ foreach ( $sources as $source )
                 
                 
             $detail = curl_exec($chDet);
-            if (!$detail)
+            if (!$detail) {
                 $inmate['detailError'] = curl_error($chDet);
+            }
 
             $redirectUrl = curl_getinfo($chDet)['url'];
             
@@ -177,23 +178,22 @@ foreach ( $sources as $source )
             // scrape some arrest details not available in the main list
             $detailDom2 = new simple_html_dom();
             $detailDom2->load($detail);
-            $inmate->relDate = trim($detailDom2->find("#mainContent_CenterColumnContent_lblReleaseDate",0)->plaintext);
-            $inmate->courtNext = trim($detailDom2->find("#mainContent_CenterColumnContent_lblNextCourtDate",0)->plaintext);
-            $inmate->totalBond = trim($detailDom2->find("#mainContent_CenterColumnContent_lblTotalBoundAmount",0)->plaintext);
+            $inmate->relDate = trim($detailDom2->find("#mainContent_CenterColumnContent_lblReleaseDate", 0)->plaintext);
+            $inmate->courtNext = trim($detailDom2->find("#mainContent_CenterColumnContent_lblNextCourtDate", 0)->plaintext);
+            $inmate->totalBond = trim($detailDom2->find("#mainContent_CenterColumnContent_lblTotalBoundAmount", 0)->plaintext);
             
             $r=0; // row index
-            foreach ($detailDom2->find("#mainContent_CenterColumnContent_dgMainResults tr") as $rows){
+            foreach ($detailDom2->find("#mainContent_CenterColumnContent_dgMainResults tr") as $rows) {
                 if ($r === 0) { // header row
                     $headers = $rows->find("td");
-                }
-                else {  // data rows
-                    $item = new stdClass();           
+                } else {  // data rows
+                    $item = new stdClass();
                     $c=0; // column index to match headers
-                    foreach ($rows->find("td") as $datum){    
-                        $label = trim($headers[$c]->plaintext); 
-                        $item->$label = trim($datum->plaintext); 
+                    foreach ($rows->find("td") as $datum) {
+                        $label = trim($headers[$c]->plaintext);
+                        $item->$label = trim($datum->plaintext);
                         $c++; // increment column
-                        }
+                    }
                     $inmate->charges[] = $item;
                 }
                 $r++; // increment row index
@@ -203,18 +203,20 @@ foreach ( $sources as $source )
             $detailDom2->clear();
             unset($detailDom2);
                 
-             // store detail event state, validation and generator strings from this document
+            // store detail event state, validation and generator strings from this document
             $postDetail = array();
 
             $inputs = $detailDom->getElementsByTagName('input');
-            foreach ( $inputs as $input )
-                $postDetail[$input->getAttribute('name')] = $inputValue = $input->getAttribute('value');    
+            foreach ($inputs as $input) {
+                $postDetail[$input->getAttribute('name')] = $inputValue = $input->getAttribute('value');
+            }
 
             // update inmate number in hidden form element and process $post array to string
-            $postDetail['ctl00$MasterPage$mainContent$CenterColumnContent$hfRecordIndex'] = $inmate->my_num;        
+            $postDetail['ctl00$MasterPage$mainContent$CenterColumnContent$hfRecordIndex'] = $inmate->my_num;
             $temp_string = array();
-            foreach ( $postDetail as $key => $value )
-                    $temp_string[] = $key . "=" . urlencode($value);
+            foreach ($postDetail as $key => $value) {
+                $temp_string[] = $key . "=" . urlencode($value);
+            }
             // Bring in array elements into string
             $postDetailString = implode('&', $temp_string);
             
@@ -224,14 +226,14 @@ foreach ( $sources as $source )
             // $inmate->redirect = $redirectUrl;
             
             // make call to mug endpoint with new redirect URL set as referer
-            $chMug = curl_init( $source['mug']);
-            curl_setopt_array( $chMug, array(
+            $chMug = curl_init($source['mug']);
+            curl_setopt_array($chMug, array(
                 CURLOPT_REFERER => $redirectUrl,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_HTTPGET => true,
                 CURLOPT_COOKIEJAR => $source['cookie'],
                 CURLOPT_COOKIEFILE => $source['cookie'],
-                CURLOPT_FOLLOWLOCATION => TRUE,     // Follow redirects
+                CURLOPT_FOLLOWLOCATION => true,     // Follow redirects
                 CURLOPT_MAXREDIRS => 4,
                 CURLOPT_POSTFIELDS => $postDetailString,
                 CURLOPT_HTTPHEADER => array('Expect: '),
@@ -244,11 +246,10 @@ foreach ( $sources as $source )
             ));
 
             $raw_mug = curl_exec($chMug);
-            if (!$raw_mug)
-                $inmate['mugError'] = curl_error($chMug);
             curl_close($chMug);
-
+            
             if (!$raw_mug) {
+                $inmate['mugError'] = curl_error($chMug);
                 $inmate->image = "http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg";
             }
             else {
@@ -278,6 +279,7 @@ foreach ( $sources as $source )
                 load on client side */
                 $inmate->dob = explode(" ", $inmate->dob)[0];
              /* debug */
+             $inmate->cookie = $source['cookie'];
              //$test[] = $inmate;
              
              $data[$i]['data'][] = $inmate;
