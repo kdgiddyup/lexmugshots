@@ -28,7 +28,6 @@ $sources = array(
 );
 
 chown(dirname(__FILE__).'./tmp', 'root');
-chmod(dirname(__FILE__).'./tmp', 0755);
 
 $startTarget = strtotime("$start days 0:0:0", strtotime('now'));
 $endTarget = strtotime("$end days 0:0:0", strtotime('now'));
