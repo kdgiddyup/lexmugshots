@@ -29,13 +29,17 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg"
         crossorigin="anonymous">
 
-    <script type="text/javascript">var type = "landing"</script>
+    <script type="text/javascript">var type = "landing";</script>
+
     <!-- deploy: change script src -->
-    <!-- script src="http://media.islandpacket.com/static/news/crime/mugshots/2018/booking.js"><\/script -->
-    <script src="booking.js"></script>
+    <script src="http://media.thestate.com/static/news/crime/mugshots/lexington/booking.js"></script>
+    <!-- script src="booking.js"></script -->
+
     <!-- deploy: change stylesheet source -->
-    <!-- link rel="stylesheet" type="text/css" href="http://media.islandpacket.com/static/news/crime/mugshots/2018/booking.css" / -->
-    <link rel="stylesheet" type="text/css" href="booking.css" />
+    <link rel="stylesheet" type="text/css" href="http://media.thestate.com/static/news/crime/mugshots/lexington/booking.css"
+    />
+    <!-- link rel="stylesheet" type="text/css" href="booking.css" /-->
+
     <div class="bookings container" data-page-type="bookingIndex">
         <div class="row">
             <div class="col-lg-12">
@@ -45,13 +49,12 @@
 
                 <p>The following individuals were processed as detainees at the Lexington County Detention Center within the
                     time frame shown. The data and photographs were imported from the detention center when you opened this
-                    page. This information is not stored on our servers. For that reason, our website will not appear
-                    among results of web searches for current or former inmates. When individuals' information is no longer
-                    in the detention center's records, it will not be available here.</p>
+                    page. This information is not stored on our servers. For that reason, our website will not appear among
+                    results of web searches for current or former inmates. When individuals' information is no longer in
+                    the detention center's records, it will not be available here.</p>
 
-                <p>By default, this application shows today's bookings in order from the most recent booking. Use these convenient
-                    shortcut buttons or enter specific start and end dates (up to 90 days before today), and the sort buttons
-                    to change the order of results:</p>
+                <p>By default, this application shows today's arrests. Use these convenient shortcut buttons or enter specific
+                    start and end dates (up to 90 days before today), and the sort buttons to change the order of results:</p>
 
                 <div id="datepicker">
                     <div class="dateShortcut btn btn-warning" data-time-back="1">Today</div>
@@ -66,6 +69,7 @@
                         <input id="endDate" type="date" name="end">
                         <span id="dateSubmitBtn" class="btn btn-default submit">Submit dates</span>
                     </p>
+                    <p>Note: Requests for records over longer periods might take several minutes. Please be patient.</p>
                 </div>
 
                 <!-- filter  -->
@@ -73,8 +77,8 @@
                     <h3>Filter
                         <span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
                     </h3>
-                    <p>Filter by entering whole or partial words for details such as a place, detainee or arresting officer
-                        names, agency names, charges or any other text that might appear in the booking record.
+                    <p>Filter by entering whole or partial words for details such as detainee names, agency names, charges or
+                        any other text that might appear in the booking record.
                         <em>Your browser will need extra time to process filter requests if many records are returned. Be patient!</em>
                     </p>
                     <div id="filter" class="input-group">
@@ -102,7 +106,7 @@
                         <span id="sortAlpha" class="btn btn-default" data-sort="asc">Alphabetical
                             <i id="alphaSortIcon" aria-hidden="true"></i>
                         </span>
-                        <span id="sortDate" class="btn btn-default" data-sort="asc">Booking date
+                        <span id="sortDate" class="btn btn-default" data-sort="asc">Arrest date
                             <i id="dateSortIcon" class="fa fa-arrow-down" aria-hidden="true"></i>
                         </span> Tap or click a name or booking photo for more details.</p>
 

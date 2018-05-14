@@ -14,9 +14,8 @@ var end = bookingData.end || 0;
 var qTerms = bookingData.terms || "";
 
 // where is our API?
-var ajaxSrc = 
-//"./../index.php";
-"https://lexmugs.herokuapp.com";
+var ajaxSrc = //"./../index.php";
+  "https://lexmugs.herokuapp.com";
 // "http://dev.nandointeractive.com/mugshots/";
 
 // for filtering purposes, create an array of stringified detainee data
@@ -35,7 +34,7 @@ $(document).ready(function() {
       displayInmate(inmate);
     } else {
       $("#inmate").html(
-        '<p>This page is intended to display details about an inmate recently booked into the Lexington County Detention Center. If you\'re seeing this message, an error has occurred, or you have not selected an inmate from the Lexington County Mugshots main page.</p>'
+        "<p>This page is intended to display details about an inmate recently booked into the Lexington County Detention Center. If you're seeing this message, an error has occurred, or you have not selected an inmate from the Lexington County Mugshots main page.</p>"
       );
     }
   } else {
@@ -268,7 +267,7 @@ function displayInmates(data, start, end, terms) {
   var url = "detail.html";
   // deploy:
   //var url =
-    "http://www.islandpacket.com/news/local/crime/local-arrests/article157204724.html";
+  ("http://www.islandpacket.com/news/local/crime/local-arrests/article157204724.html");
 
   $(".detaineeIndex").on("click", function() {
     // place inmate data and search terms in localStorage
@@ -346,7 +345,8 @@ function displayInmates(data, start, end, terms) {
       terms = null;
 
       // update local storage
-      var bookingData = JSON.parse(localStorage.getItem("lexBookingData")) || {};
+      var bookingData =
+        JSON.parse(localStorage.getItem("lexBookingData")) || {};
       bookingData.terms = "";
       localStorage.setItem("lexBookingData", JSON.stringify(bookingData));
 
@@ -426,7 +426,8 @@ function displayInmates(data, start, end, terms) {
 function displayInmate(inmate) {
   console.log(inmate);
   // we'll need the full name a couple places, so let's build it once:
-  inmate.name = inmate.firstname + " " + inmate.middlename + " " + inmate.lastname;
+  inmate.name =
+    inmate.firstname + " " + inmate.middlename + " " + inmate.lastname;
 
   // change browser title and headline to be this inmate and add booking number attribute to inmate div:
   $("#story-header")
@@ -452,12 +453,13 @@ function displayInmate(inmate) {
     '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"><h4>Arrest information <button class="btn btn-primary pull-right" id="returnBtn">Return to Local Arrests</button></h4>';
 
   // start details table
-  inmate.courtNext = inmate.courtNext==="" ? "None listed" : inmate.courtNext;
-  inmate.relDate = inmate.relDate==="" ? "None listed" : inmate.relDate;
+  inmate.courtNext = inmate.courtNext === "" ? "None listed" : inmate.courtNext;
+  inmate.relDate = inmate.relDate === "" ? "None listed" : inmate.relDate;
   inmateBlock +=
-    '<table class="details table table-hover table-striped"><tr><th>Booking date</th><td>' +
+    '<table class="details table table-hover table-striped"><tr><th>Arrest date</th><td>' +
     inmate.disp_arrest_date +
-    "</td></tr><tr><th>Next court date</th><td>" + inmate.courtNext +
+    "</td></tr><tr><th>Next court date</th><td>" +
+    inmate.courtNext +
     "</td></tr><tr><th>Release date</th><td>" +
     inmate.relDate +
     "</td></tr><tr><th>Date of birth</th><td>" +
@@ -480,13 +482,13 @@ function displayInmate(inmate) {
   $("#inmate").html(inmateBlock);
 
   // agency if one listed
-  var agency = (inmate.disp_agency != "") ? inmate.disp_agency : "None listed";
+  var agency = inmate.disp_agency != "" ? inmate.disp_agency : "None listed";
 
   // start table for this arrest
   var detailBlock =
-  '<table class="table table-hover agencyTable"><tr><th colspan="2" class="text-center">Agency: ' +
-  agency +
-  "</th><tr><th>Charges/bond details</th><td>";
+    '<table class="table table-hover agencyTable"><tr><th colspan="2" class="text-center">Agency: ' +
+    agency +
+    "</th><tr><th>Charges/bond details</th><td>";
 
   // Are there arrest details?
   // API returns charges in an array so test its length:
@@ -497,30 +499,29 @@ function displayInmate(inmate) {
       arrestIndex < inmate.charges.length;
       arrestIndex++
     ) {
-      //loop through offenses 
-        detailBlock +=
-          '<div class="offense"><span class="leadin">Offense:</span> ' +
-          inmate.charges[arrestIndex].Charge +
-          "<br/>";
+      //loop through offenses
+      detailBlock +=
+        '<div class="offense"><span class="leadin">Offense:</span> ' +
+        inmate.charges[arrestIndex].Charge +
+        "<br/>";
 
-        //create a docket row
-        detailBlock +=
-            '<span class="leadin">Docket No.:</span> ' +
-            inmate.charges[arrestIndex]["Docket #"] +
-            "<br/>";
+      //create a docket row
+      detailBlock +=
+        '<span class="leadin">Docket No.:</span> ' +
+        inmate.charges[arrestIndex]["Docket #"] +
+        "<br/>";
 
-        //create status row
-        detailBlock +=
-          '<span class="leadin">Status:</span> ' +
-          inmate.charges[arrestIndex].Status +
-          '<br/><span class="leadin">Bond Amount:</span> ' +
-          inmate.charges[arrestIndex]["Bond Amount"] +
-          "</div>";
-        } // end offenses loop
-        // close offenses row
-        detailBlock += "</td></tr>";
-
-      } // end charges exist conditional
+      //create status row
+      detailBlock +=
+        '<span class="leadin">Status:</span> ' +
+        inmate.charges[arrestIndex].Status +
+        '<br/><span class="leadin">Bond Amount:</span> ' +
+        inmate.charges[arrestIndex]["Bond Amount"] +
+        "</div>";
+    } // end offenses loop
+    // close offenses row
+    detailBlock += "</td></tr>";
+  } // end charges exist conditional
 
   // no arrest info is present
   else {

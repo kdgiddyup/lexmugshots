@@ -27,8 +27,8 @@ $sources = array(
         'cookie'    => dirname(__FILE__).'/tmp/lexmugs.txt'
 	)
 );
-if (!file_exists('/app/tmp'))
-    mkdir('/app/tmp');
+if (!file_exists('tmp'))
+    mkdir('tmp');
 
 $startTarget = strtotime("$start days 0:0:0", strtotime('now'));
 $endTarget = strtotime("$end days 0:0:0", strtotime('now'));
@@ -65,7 +65,7 @@ foreach ( $sources as $source )
     curl_close($ch);
 
     if (!$home)
-        $data[$i]['scrapeError'] = curl_error($ch);
+        $data[$i]->scrapeError = curl_error($ch);
 
     // POST to data handler to retrieve initial list of detainees
     $chList = curl_init($source['list']);
@@ -85,7 +85,7 @@ foreach ( $sources as $source )
         );
     $list = curl_exec($chList);
     if (!$list) 
-        $data[$i]['listError'] = curl_error($chList);
+        $data[$i]->listError = curl_error($chList);
     curl_close($chList); 
     $list = json_decode($list);
 
@@ -161,7 +161,7 @@ foreach ( $sources as $source )
                 
             $detail = curl_exec($chDet);
             if (!$detail) {
-                $inmate['detailError'] = curl_error($chDet);
+                $inmate->detailError = curl_error($chDet);
             }
 
             $redirectUrl = curl_getinfo($chDet)['url'];
@@ -171,118 +171,119 @@ foreach ( $sources as $source )
             curl_close($chDet);
             
             // let's take a look at the returned HTML
-           
-            $detailDom = new DOMDocument();
-            $detailDom->loadHTML($detail);
-           
-            // scrape some arrest details not available in the main list
-            $detailDom2 = new simple_html_dom();
-            $detailDom2->load($detail);
-            $inmate->relDate = trim($detailDom2->find("#mainContent_CenterColumnContent_lblReleaseDate", 0)->plaintext);
-            $inmate->courtNext = trim($detailDom2->find("#mainContent_CenterColumnContent_lblNextCourtDate", 0)->plaintext);
-            $inmate->totalBond = trim($detailDom2->find("#mainContent_CenterColumnContent_lblTotalBoundAmount", 0)->plaintext);
+            // but only if it's not an empty string
+            if ($detail !== "") {
+                $detailDom = new DOMDocument();
+                $detailDom->loadHTML($detail);
             
-            $r=0; // row index
-            foreach ($detailDom2->find("#mainContent_CenterColumnContent_dgMainResults tr") as $rows) {
-                if ($r === 0) { // header row
-                    $headers = $rows->find("td");
-                } else {  // data rows
-                    $item = new stdClass();
-                    $c=0; // column index to match headers
-                    foreach ($rows->find("td") as $datum) {
-                        $label = trim($headers[$c]->plaintext);
-                        $item->$label = trim($datum->plaintext);
-                        $c++; // increment column
+                // scrape some arrest details not available in the main list
+                $detailDom2 = new simple_html_dom();
+                $detailDom2->load($detail);
+                $inmate->relDate = trim($detailDom2->find("#mainContent_CenterColumnContent_lblReleaseDate", 0)->plaintext);
+                $inmate->courtNext = trim($detailDom2->find("#mainContent_CenterColumnContent_lblNextCourtDate", 0)->plaintext);
+                $inmate->totalBond = trim($detailDom2->find("#mainContent_CenterColumnContent_lblTotalBoundAmount", 0)->plaintext);
+                
+                $r=0; // row index
+                foreach ($detailDom2->find("#mainContent_CenterColumnContent_dgMainResults tr") as $rows) {
+                    if ($r === 0) { // header row
+                        $headers = $rows->find("td");
+                    } else {  // data rows
+                        $item = new stdClass();
+                        $c=0; // column index to match headers
+                        foreach ($rows->find("td") as $datum) {
+                            $label = trim($headers[$c]->plaintext);
+                            $item->$label = trim($datum->plaintext);
+                            $c++; // increment column
+                        }
+                        $inmate->charges[] = $item;
                     }
-                    $inmate->charges[] = $item;
+                    $r++; // increment row index
+                };
+                            
+                // clean up memory
+                $detailDom2->clear();
+                unset($detailDom2);
+                    
+                // store detail event state, validation and generator strings from this document
+                $postDetail = array();
+
+                $inputs = $detailDom->getElementsByTagName('input');
+                foreach ($inputs as $input) {
+                    $postDetail[$input->getAttribute('name')] = $inputValue = $input->getAttribute('value');
                 }
-                $r++; // increment row index
-            };
-                        
-            // clean up memory
-            $detailDom2->clear();
-            unset($detailDom2);
+
+                // update inmate number in hidden form element and process $post array to string
+                $postDetail['ctl00$MasterPage$mainContent$CenterColumnContent$hfRecordIndex'] = $inmate->my_num;
+                $temp_string = array();
+                foreach ($postDetail as $key => $value) {
+                    $temp_string[] = $key . "=" . urlencode($value);
+                }
+                // Bring in array elements into string
+                $postDetailString = implode('&', $temp_string);
                 
-            // store detail event state, validation and generator strings from this document
-            $postDetail = array();
-
-            $inputs = $detailDom->getElementsByTagName('input');
-            foreach ($inputs as $input) {
-                $postDetail[$input->getAttribute('name')] = $inputValue = $input->getAttribute('value');
-            }
-
-            // update inmate number in hidden form element and process $post array to string
-            $postDetail['ctl00$MasterPage$mainContent$CenterColumnContent$hfRecordIndex'] = $inmate->my_num;
-            $temp_string = array();
-            foreach ($postDetail as $key => $value) {
-                $temp_string[] = $key . "=" . urlencode($value);
-            }
-            // Bring in array elements into string
-            $postDetailString = implode('&', $temp_string);
-            
-            /* debug: output some curl strings for this inmate */
-            // $inmate->mugQuery = $postDetail;
-            // $inmate->detailDom = $detail;
-            // $inmate->redirect = $redirectUrl;
-            
-            // make call to mug endpoint with new redirect URL set as referer
-            $chMug = curl_init($source['mug']);
-            curl_setopt_array($chMug, array(
-                CURLOPT_REFERER => $redirectUrl,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPGET => true,
-                CURLOPT_COOKIEJAR => $source['cookie'],
-                CURLOPT_COOKIEFILE => $source['cookie'],
-                CURLOPT_FOLLOWLOCATION => true,     // Follow redirects
-                CURLOPT_MAXREDIRS => 4,
-                CURLOPT_POSTFIELDS => $postDetailString,
-                CURLOPT_HTTPHEADER => array('Expect: '),
+                /* debug: output some curl strings for this inmate */
+                // $inmate->mugQuery = $postDetail;
+                // $inmate->detailDom = $detail;
+                // $inmate->redirect = $redirectUrl;
                 
-                /* for debug - more info */
-                //CURLINFO_HEADER_OUT => true,
-                // CURLOPT_HEADER => false,
-                // CURLOPT_VERBOSE => true,
-                // CURLOPT_STDERR => $mugLog
-            ));
+                // make call to mug endpoint with new redirect URL set as referer
+                $chMug = curl_init($source['mug']);
+                curl_setopt_array($chMug, array(
+                    CURLOPT_REFERER => $redirectUrl,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_HTTPGET => true,
+                    CURLOPT_COOKIEJAR => $source['cookie'],
+                    CURLOPT_COOKIEFILE => $source['cookie'],
+                    CURLOPT_FOLLOWLOCATION => true,     // Follow redirects
+                    CURLOPT_MAXREDIRS => 4,
+                    CURLOPT_POSTFIELDS => $postDetailString,
+                    CURLOPT_HTTPHEADER => array('Expect: '),
+                    
+                    /* for debug - more info */
+                    //CURLINFO_HEADER_OUT => true,
+                    // CURLOPT_HEADER => false,
+                    // CURLOPT_VERBOSE => true,
+                    // CURLOPT_STDERR => $mugLog
+                ));
 
-            $raw_mug = curl_exec($chMug);
-            curl_close($chMug);
-
-            if (!$raw_mug) {
-                $inmate['mugError'] = curl_error($chMug);
-                $inmate->image = "http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg";
-            }
-            else {
-                // make the file instead of sending it
-                // $f = fopen('./mugs/mug'.$inmate->my_num.'.jpg', 'wb');
-                // fwrite($f, $raw_mug);
-                // fclose($f);
-
-                // process image string
-                $mug = imagecreatefromstring($raw_mug);
-                if ($mug !== false) {
-                    // start buffering and catch image output
-                    ob_start();
-                    imagejpeg($mug);
-                    $contents =  ob_get_contents();
-                    $img_data = "data:image/jpg;base64,".base64_encode($contents);
-                    ob_end_clean();
-                    imagedestroy($mug);
-                } 
+                $raw_mug = curl_exec($chMug);
+                if (!$raw_mug) {
+                    $inmate->mugError = curl_error($chMug);
+                    $inmate->image = "http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg";
+                }
                 else {
-                    $img_data = "http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg";
-                    } 
-                $inmate->image = $img_data;
-                }         
+                    // make the file instead of sending it
+                    // $f = fopen('./mugs/mug'.$inmate->my_num.'.jpg', 'wb');
+                    // fwrite($f, $raw_mug);
+                    // fclose($f);
 
-                /* clean up to reduce processing
-                load on client side */
-                $inmate->dob = explode(" ", $inmate->dob)[0];
-             /* debug */
-             $inmate->cookie = $source['cookie'];
-             //$test[] = $inmate;
-             
-             $data[$i]['data'][] = $inmate;
+                    // process image string
+                    $mug = imagecreatefromstring($raw_mug);
+                    
+                    if (!$mug) {
+                        $img_data = "http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg";
+                    } 
+                    else {
+                        // start buffering and catch image output
+                        ob_start();
+                        imagejpeg($mug);
+                        $contents =  ob_get_contents();
+                        $img_data = "data:image/jpg;base64,".base64_encode($contents);
+                        ob_end_clean();
+                        imagedestroy($mug);
+                        } 
+                    $inmate->image = $img_data;
+                    }         
+                    curl_close($chMug);
+                    /* clean up to reduce processing
+                    load on client side */
+                    $inmate->dob = explode(" ", $inmate->dob)[0];
+                /* debug */
+                $inmate->cookie = $source['cookie'];
+                //$test[] = $inmate;
+                
+                $data[$i]['data'][] = $inmate;
+            }
 		}
 	}
 	$i++;
