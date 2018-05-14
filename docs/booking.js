@@ -14,8 +14,9 @@ var end = bookingData.end || 0;
 var qTerms = bookingData.terms || "";
 
 // where is our API?
-var ajaxSrc = './../index.php';
-// "https://lexmugs.herokuapp.com";
+var ajaxSrc = 
+// './../index.php';
+"https://lexmugs.herokuapp.com";
 // "http://dev.nandointeractive.com/mugshots/";
 
 // for filtering purposes, create an array of stringified detainee data
