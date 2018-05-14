@@ -222,7 +222,7 @@ foreach ( $sources as $source )
             // make call to mug endpoint with new redirect URL set as referer
             $chMug = curl_init( $source['mug']);
             curl_setopt_array( $chMug, array(
-                CURLOPT_REFERER => $source['main'],
+                CURLOPT_REFERER => $redirectUrl,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_HTTPGET => true,
                 CURLOPT_COOKIEJAR => $source['cookie'],
