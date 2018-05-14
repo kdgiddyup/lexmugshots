@@ -27,7 +27,7 @@ $sources = array(
 	)
 );
 
-chown(dirname(__FILE__).'./tmp', 'root');
+chown(dirname(__FILE__).'./tmp/', 'root');
 
 $startTarget = strtotime("$start days 0:0:0", strtotime('now'));
 $endTarget = strtotime("$end days 0:0:0", strtotime('now'));
