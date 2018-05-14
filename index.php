@@ -27,8 +27,8 @@ $sources = array(
         'cookie'    => dirname(__FILE__).'/tmp/lexmugs.txt'
 	)
 );
-if (!file_exists('/tmp'))
-    mkdir('/tmp');
+if (!file_exists('/app/tmp'))
+    mkdir('/app/tmp');
 
 $startTarget = strtotime("$start days 0:0:0", strtotime('now'));
 $endTarget = strtotime("$end days 0:0:0", strtotime('now'));
