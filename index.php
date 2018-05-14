@@ -3,7 +3,7 @@ require_once("simple_html_dom.php");
 header("Access-Control-Allow-Origin: *");
 
 // allow script to run for at least 5 minutes, for larger record requests
-set_time_limit(300);
+set_time_limit(0);
 
 /**
  * Search and display recent confinement data
@@ -176,7 +176,7 @@ foreach ( $sources as $source )
             
             // let's take a look at the returned HTML
             // but only if it's not an empty string
-            if ($detail !== "") {
+            if ( !empty($detail)) {
                 $detailDom = new DOMDocument();
                 $detailDom->loadHTML($detail);
             
