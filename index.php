@@ -1,6 +1,10 @@
 <?php
 require_once("simple_html_dom.php");
 header("Access-Control-Allow-Origin: *");
+
+// allow script to run for at least 5 minutes, for larger record requests
+set_time_limit(300);
+
 /**
  * Search and display recent confinement data
  * for Lexington County Detention Center
