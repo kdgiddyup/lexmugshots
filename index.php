@@ -27,9 +27,7 @@ $sources = array(
         'cookie'    => dirname(__FILE__).'./tmp/lexmugs.txt'
 	)
 );
-
-chown('./tmp', 'root');
-chmod('./tmp', 0777);
+mkdir('/tmp');
 
 $startTarget = strtotime("$start days 0:0:0", strtotime('now'));
 $endTarget = strtotime("$end days 0:0:0", strtotime('now'));
