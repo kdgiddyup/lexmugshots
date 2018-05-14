@@ -24,7 +24,7 @@ $sources = array(
         'list'		=> 'http://jail.lexingtonsheriff.net/jqHandler.ashx?op=s',
         'detail'    => 'http://jail.lexingtonsheriff.net/InmateDetail.aspx',
         'mug'       => 'http://jail.lexingtonsheriff.net/Mug.aspx',
-        'cookie'    => dirname(__FILE__).'./tmp/lexmugs.txt'
+        'cookie'    => dirname(__FILE__).'/tmp/lexmugs.txt'
 	)
 );
 if (!file_exists('/tmp'))
@@ -247,7 +247,7 @@ foreach ( $sources as $source )
 
             $raw_mug = curl_exec($chMug);
             curl_close($chMug);
-            
+
             if (!$raw_mug) {
                 $inmate['mugError'] = curl_error($chMug);
                 $inmate->image = "http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg";
