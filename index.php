@@ -183,9 +183,15 @@ foreach ( $sources as $source )
                 // scrape some arrest details not available in the main list
                 $detailDom2 = new simple_html_dom();
                 $detailDom2->load($detail);
-                $inmate->relDate = trim($detailDom2->find("#mainContent_CenterColumnContent_lblReleaseDate", 0)->plaintext);
-                $inmate->courtNext = trim($detailDom2->find("#mainContent_CenterColumnContent_lblNextCourtDate", 0)->plaintext);
-                $inmate->totalBond = trim($detailDom2->find("#mainContent_CenterColumnContent_lblTotalBoundAmount", 0)->plaintext);
+                
+                $relDate = trim($detailDom2->find("#mainContent_CenterColumnContent_lblReleaseDate", 0)->plaintext);
+                $inmate->relDate = $relDate ? $relDate : "Not listed";
+
+                $courtNext = trim($detailDom2->find("#mainContent_CenterColumnContent_lblNextCourtDate", 0)->plaintext);
+                $inmate->courtNext = $courtNext ? $courtNext : "Not listed";
+                
+                $totalBond = trim($detailDom2->find("#mainContent_CenterColumnContent_lblTotalBoundAmount", 0)->plaintext);
+                $inmate->totalBond = $totalBond ? $totalBond : "Not listed";
                 
                 $r=0; // row index
                 foreach ($detailDom2->find("#mainContent_CenterColumnContent_dgMainResults tr") as $rows) {
