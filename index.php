@@ -13,6 +13,7 @@ header("Access-Control-Allow-Origin: *");
  */
 
 /*  Declarations  */
+date_default_timezone_set('America/New_York');
 $data = array();
 $start= -$_GET["start"];
 $end = -$_GET["end"];
