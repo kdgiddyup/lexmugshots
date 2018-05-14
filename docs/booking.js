@@ -424,7 +424,6 @@ function displayInmates(data, start, end, terms) {
 
 // for story page
 function displayInmate(inmate) {
-  console.log(inmate);
   // we'll need the full name a couple places, so let's build it once:
   inmate.name =
     inmate.firstname + " " + inmate.middlename + " " + inmate.lastname;
@@ -548,14 +547,13 @@ function displayInmate(inmate) {
 */
 function runFilter(value) {
   // update local storage
-
   var bookingData = JSON.parse(localStorage.getItem("lexBookingData")) || {};
 
   bookingData.terms = value;
   localStorage.setItem("lexBookingData", JSON.stringify(bookingData));
 
   // entered just a space? show everyone and get out
-  if (!value) {
+  if (!value || value === " ") {
     $(".detaineeIndex").show("fast");
     $("#filterSpinner").hide("fast");
     return;
@@ -568,12 +566,10 @@ function runFilter(value) {
     .split(" ");
 
   $(filterSource).each(function(index, element) {
+    // element represents the stringified version of each detainee object
+
     // reset isMatched flag
     var isMatched = false;
-
-    // element represents the stringified version of each detainee object
-    // create a JSON version to grab the book_id value
-    var book_id = JSON.parse(element).book_id;
 
     // check this element string against each term
     for (var v = 0; v < values.length; v++) {
@@ -582,19 +578,20 @@ function runFilter(value) {
         // no? set isMatched to false, exit loop because there's no need to keep searching
         isMatched = false;
         break;
-      } else {
-        // yes?
-        // special case for 'male' since it is included in 'female'
-        // if value being checked is male, but inmate record has "female", then this is not a match
-        if (
-          values[v] === "male" &&
-          element.toLowerCase().indexOf("female") > -1
-        ) {
-          isMatched = false;
-          break;
-        }
-        //set isMatched to true but keep checking other words in value array
-        else isMatched = true;
+      }
+      // yes?
+      // special case for 'male' since it is included in 'female'
+      // if value being checked is male, but inmate record has "female", then this is not a match
+      else if (
+        values[v] === "male" &&
+        JSON.parse(element).sex.toLowerCase() === "female"
+      ) {
+        isMatched = false;
+        break;
+      }
+      //set isMatched to true but keep checking other words in value array
+      else {
+        isMatched = true;
       }
     }
 
