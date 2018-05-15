@@ -14,9 +14,9 @@ var end = bookingData.end || 0;
 var qTerms = bookingData.terms || "";
 
 // where is our API?
-var ajaxSrc = //"./../index.php";
-  // "https://lexmugs.herokuapp.com";
-  "http://dev.nandointeractive.com/mugshots/lexington/";
+var ajaxSrc = "./../index.php";
+// "https://lexmugs.herokuapp.com";
+// "http://dev.nandointeractive.com/mugshots/lexington/";
 
 // for filtering purposes, create an array of stringified detainee data
 var filterSource = [];
@@ -34,7 +34,7 @@ $(document).ready(function() {
       displayInmate(inmate);
     } else {
       $("#inmate").html(
-        "<p>This page is intended to display details about an inmate recently booked into the Lexington County Detention Center. If you're seeing this message, an error has occurred, or you have not selected an inmate from the Lexington County Mugshots main page.</p>"
+        "<p>This page is intended to display details about an inmate recently booked into the Lexington County Detention Center. If you're seeing this message, an error has occurred, or you have not selected an inmate from the main Lexington County Local Arrests page.</p>"
       );
     }
   } else {
