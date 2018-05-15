@@ -14,8 +14,8 @@ var end = bookingData.end || 0;
 var qTerms = bookingData.terms || "";
 
 // where is our API?
-var ajaxSrc = "./../index.php";
-//"https://lexmugs.herokuapp.com";
+var ajaxSrc = //"./../index.php";
+"https://lexmugs.herokuapp.com";
 // "http://dev.nandointeractive.com/mugshots/";
 
 // for filtering purposes, create an array of stringified detainee data
@@ -557,10 +557,14 @@ function displayInmate(inmate) {
 
 // helper functions
 
-// filter
+/* **************************** */
+/*            Filter            */
+/* **************************** */
+
 /* loop through stringified data stored in filterSource array and look for matches to passed in string as "value"; if found, show that offender. if not, hide it. 
-// we target divs of class ".detaineeIndex" to show/hide by booking number attribute (data-booking-number)
+// we target divs of class ".detaineeIndex" to show/hide by array index (data-index attribute)
 */
+
 function runFilter(term) {
   // update local storage
   var bookingData = JSON.parse(localStorage.getItem("lexBookingData")) || {};
@@ -595,24 +599,17 @@ function runFilter(term) {
         break;
       }
       // yes?
-      // special case for 'male' since it is included in 'female'
-      // if value being checked is male, but inmate record has "female", then this is not a match
-      else if (
-        terms[t] === "male" &&
-        JSON.parse(detValues).sex.toLowerCase() === "male"
-      ) {
-        isMatched = true;
-      } else if (
-        terms[t] === "female" &&
-        JSON.parse(detValues).sex.toLowerCase() === "female"
-      ) {
-        isMatched = true;
-      }
       //set isMatched to true but keep checking other words in value array
-      else {
-        isMatched = true;
-      }
-    }
+        else {
+          // make sure we don't match female with male
+          if (terms[t] === "male" && JSON.parse(detValues).sex === "female") {
+            isMatched = false;
+          }
+          else {
+          isMatched = true;
+          }
+        }
+    };
 
     //after checking this element against each term currently in filter, is isMatched still true?
     if (isMatched) {

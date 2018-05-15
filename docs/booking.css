@@ -98,7 +98,9 @@ p.booktime {
     padding-left: 40px;
     padding-right: 40px;
 }
-
+.fa-exclamation-triangle {
+    color: #ff0000;
+}
 
 /*  some media query stuff */
 
