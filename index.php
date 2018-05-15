@@ -232,9 +232,8 @@ foreach ( $sources as $source )
                 $postDetailString = implode('&', $temp_string);
                 
                 // clean up
-                $detailDom->clear();
                 unset($detailDom);
-                
+
                 /* debug: output some curl strings for this inmate */
                 // $inmate->mugQuery = $postDetail;
                 // $inmate->detailDom = $detail;
@@ -273,7 +272,8 @@ foreach ( $sources as $source )
 
                     // process image string
                     $mug = imagecreatefromstring($raw_mug);
-                    
+                    unset($raw_mug);
+
                     if (!$mug) {
                         $img_data = "http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg";
                     } 
@@ -287,9 +287,12 @@ foreach ( $sources as $source )
                         imagedestroy($mug);
                         } 
                     $inmate->image = $img_data;
+                    unset($img_data);
                     }         
                     curl_close($chMug);
-                    /* clean up to reduce processing
+                    unset($chMug);
+                    
+                    /* remove superfluous to reduce processing
                     load on client side */
                     $inmate->dob = explode(" ", $inmate->dob)[0];
                 /* debug */

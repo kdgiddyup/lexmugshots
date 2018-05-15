@@ -15,8 +15,8 @@ var qTerms = bookingData.terms || "";
 
 // where is our API?
 var ajaxSrc = //"./../index.php";
-"https://lexmugs.herokuapp.com";
-// "http://dev.nandointeractive.com/mugshots/";
+  // "https://lexmugs.herokuapp.com";
+  "http://dev.nandointeractive.com/mugshots/lexington/";
 
 // for filtering purposes, create an array of stringified detainee data
 var filterSource = [];
@@ -600,16 +600,15 @@ function runFilter(term) {
       }
       // yes?
       //set isMatched to true but keep checking other words in value array
-        else {
-          // make sure we don't match female with male
-          if (terms[t] === "male" && JSON.parse(detValues).sex === "female") {
-            isMatched = false;
-          }
-          else {
+      else {
+        // make sure we don't match female with male
+        if (terms[t] === "male" && JSON.parse(detValues).sex === "female") {
+          isMatched = false;
+        } else {
           isMatched = true;
-          }
         }
-    };
+      }
+    }
 
     //after checking this element against each term currently in filter, is isMatched still true?
     if (isMatched) {
