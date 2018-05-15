@@ -231,6 +231,10 @@ foreach ( $sources as $source )
                 // Bring in array elements into string
                 $postDetailString = implode('&', $temp_string);
                 
+                // clean up
+                $detailDom->clear();
+                unset($detailDom);
+                
                 /* debug: output some curl strings for this inmate */
                 // $inmate->mugQuery = $postDetail;
                 // $inmate->detailDom = $detail;
