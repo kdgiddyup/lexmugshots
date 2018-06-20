@@ -16,7 +16,26 @@ set_time_limit(0);
  * @since       File available since Release 1.0
  */
 
-/*  Declarations  */
+
+ /*
+Framework for caching set-up:
+
+    
+if (!file_exists($file) || time()-filemtime($file) > 2 * 3600) {
+    // execute existing code set to 90 days
+    file_put_contents($file,$json);
+}
+
+$data = json_decode(file_get_contents($file),true);
+foreach( $data as $k=>$v){
+    if ($v['disp_arrest_date'] >= $startTarget && $v['disp_arrest_date'] < $end_target) {
+
+    }
+}
+*/
+
+
+ /*  Declarations  */
 date_default_timezone_set('America/New_York');
 $data = array();
 $start= -$_GET["start"];
