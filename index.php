@@ -17,7 +17,39 @@ set_time_limit(0);
  */
 
 
- /*
+/*  Declarations  */
+date_default_timezone_set('America/New_York');
+$data = array();
+$file = dirname(__FILE__).'/cache/cache.txt';
+$start= -$_GET["start"];
+$end = -$_GET["end"];
+$sources = array(
+	0 => array(
+        'agency'	=> 'Lexington County Sheriff\'s Department',
+        'main'      => 'http://jail.lexingtonsheriff.net/jailinmates.aspx',
+        'list'		=> 'http://jail.lexingtonsheriff.net/jqHandler.ashx?op=s',
+        'detail'    => 'http://jail.lexingtonsheriff.net/InmateDetail.aspx',
+        'mug'       => 'http://jail.lexingtonsheriff.net/Mug.aspx',
+        'cookie'    => dirname(__FILE__).'/tmp/lexmugs.txt'
+	)
+);
+if (!file_exists('tmp'))
+    mkdir('tmp');
+if (!file_exists('cache'))
+    mkdir('cache');
+
+
+// deploy: change -2 to -90
+$startTarget = strtotime("-90 days 0:0:0", strtotime('now'));
+$endTarget = strtotime("0 days 0:0:0", strtotime('now'));
+$userStart = strtotime("$start days 0:0:0", strtotime('now'));
+$userEnd = strtotime("$end days 0:0:0", strtotime('now'));
+
+/* debug */
+//$test = array();
+
+
+/*
 Framework for caching set-up:
 
     
@@ -35,30 +67,11 @@ foreach( $data as $k=>$v){
 */
 
 
- /*  Declarations  */
-date_default_timezone_set('America/New_York');
-$data = array();
-$start= -$_GET["start"];
-$end = -$_GET["end"];
-$sources = array(
-	0 => array(
-        'agency'	=> 'Lexington County Sheriff\'s Department',
-        'main'      => 'http://jail.lexingtonsheriff.net/jailinmates.aspx',
-        'list'		=> 'http://jail.lexingtonsheriff.net/jqHandler.ashx?op=s',
-        'detail'    => 'http://jail.lexingtonsheriff.net/InmateDetail.aspx',
-        'mug'       => 'http://jail.lexingtonsheriff.net/Mug.aspx',
-        'cookie'    => dirname(__FILE__).'/tmp/lexmugs.txt'
-	)
-);
-if (!file_exists('tmp'))
-    mkdir('tmp');
-
-$startTarget = strtotime("$start days 0:0:0", strtotime('now'));
-$endTarget = strtotime("$end days 0:0:0", strtotime('now'));
-/* debug */
-//$test = array();
-
 /*  App  */
+
+// does the cache file exist, or is it stale 
+// (let's say, more than 2 hours old?
+if (!file_exists($file) || time()-filemtime($file) > 2*3600 ){
 $i = 0;
 foreach ( $sources as $source )
 {
@@ -323,10 +336,42 @@ foreach ( $sources as $source )
 		}
 	}
 	$i++;
-}
+};
+// cache this 90 days' worth of data
+$data_to_cache = json_encode($data[0],false);
+file_put_contents($file,$data_to_cache);
 
-// Return data in JSON format.
+// send back only data requested
+$inmateData = $data[0]['data'];
+$data[0]['data']= Array();
+
+foreach ($inmateData as $inmate) {
+    if (strtotime($inmate->{'disp_arrest_date'}) >= $userStart && strtotime($inmate->{'disp_arrest_date'}) < $userEnd) {
+        $data[0]['data'][] = $inmate;
+    };
+};
 header('Content-Type: application/json');
 echo json_encode( $data[0] );
+} // end cache does not exist condition
+// the cached file exists and is young
+else {
+    // get the cached data
+    $data = json_decode(file_get_contents($file));
+    // flag this as sourced from cache
+    $data->cached = true;
+    $data->start = date('n/j/Y',$userStart);
+    $data->end = date('n/j/Y',$userEnd);
+    // extract only the data needed by the user
+    $inmateData = $data->data;
+    $data->data = Array();
+    foreach( $inmateData as $inmate){
+        if ( strtotime($inmate->{'disp_arrest_date'}) >= $userStart && strtotime($inmate->{'disp_arrest_date'}) <= $userEnd) {
+            $data->data[] = $inmate;
+            };
+    };
+    // Return data in JSON format.
+    header('Content-Type: application/json');
+    echo json_encode( $data );    
+}
 /* debug */
 //echo json_encode( $test );

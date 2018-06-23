@@ -177,6 +177,8 @@ function getData(start, end, terms) {
 
   $.get(ajaxSrc + "?start=" + start + "&end=" + end, function(response) {
     if (response.success) {
+
+      console.log(response);
       // are we on index page or details page?
       var pageType = $(".bookings").attr("data-page-type");
 
