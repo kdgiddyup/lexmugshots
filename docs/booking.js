@@ -1,3 +1,4 @@
+// update to improve filtering
 // establish 90-day boundary
 var today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -177,7 +178,6 @@ function getData(start, end, terms) {
 
   $.get(ajaxSrc + "?start=" + start + "&end=" + end, function(response) {
     if (response.success) {
-
       console.log(response);
       // are we on index page or details page?
       var pageType = $(".bookings").attr("data-page-type");
