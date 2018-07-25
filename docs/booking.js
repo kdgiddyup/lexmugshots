@@ -15,9 +15,7 @@ var end = bookingData.end || 0;
 var qTerms = bookingData.terms || "";
 
 // where is our API?
-var ajaxSrc = "./../index.php";
-// "https://lexmugs.herokuapp.com";
-// "http://dev.nandointeractive.com/mugshots/lexington/";
+var ajaxSrc = "https://52.36.239.216?requested=lexington";
 
 // for filtering purposes, create an array of stringified detainee data
 var filterSource = [];
@@ -176,7 +174,7 @@ function getData(start, end, terms) {
     .removeClass()
     .addClass("fa fa-arrow-down");
 
-  $.get(ajaxSrc + "?start=" + start + "&end=" + end, function(response) {
+  $.get(ajaxSrc + "&start=" + start + "&end=" + end, function(response) {
     if (response.success) {
       console.log(response);
       // are we on index page or details page?
