@@ -231,6 +231,8 @@ function displayInmates(data, start, end, terms) {
     var inmateBlock =
       '<div data-booknum="' +
       detainee.book_id +
+      '" data-index="' +
+      i +
       '" class="detaineeIndex col-lg-2 col-md-2 col-sm-4 col-xs-6">';
 
     // start mugshot/details row
@@ -238,7 +240,7 @@ function displayInmates(data, start, end, terms) {
 
     // photo; if image error, fall back to "no photo" option
     inmateBlock +=
-      '<img onerror="this.src=\'http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg\'" class="bcmugshot" src="' +
+      '<img onerror="this.src=\'https://media.thestate.com/static/news/crime/mugshots/noPhoto.jpg\'" class="bcmugshot" src="' +
       detainee.image +
       '" title="' +
       detainee.firstname +
@@ -452,7 +454,7 @@ function displayInmate(inmate) {
     '<div class="row"><div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">';
 
   inmateBlock +=
-    '<img onerror="this.src=\'http://media.islandpacket.com/static/news/crime/mugshots/noPhoto.jpg\'" class="bcmugshot" src="' +
+    '<img onerror="this.src=\'https://media.thestate.com/static/news/crime/mugshots/noPhoto.jpg\'" class="bcmugshot" src="' +
     inmate.image +
     '" title="' +
     inmate.name +
